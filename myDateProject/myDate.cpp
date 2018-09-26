@@ -1,5 +1,6 @@
-﻿// myDateProject.cpp : Defines the entry point for the console application.
-//
+//Spencer Neveux
+// CECS 282 (Project MyDate)
+// September 26, 2018
 
 #include "myDate.h"
 #include <string>
@@ -7,7 +8,7 @@
 
 using namespace std;
 
-int Greg2Julian(int year, int month, int day) {
+int Greg2Julian(int month, int day, int year) {
 	int JD = day - 32075 + 1461 * (year + 4800 + (month - 14) / 12) / 4 + 367 
 		* (month - 2 - (month - 14) / 12 * 12) / 12 - 3 
 		* ((year + 4900 + (month - 14) / 12) / 100) / 4;
@@ -38,9 +39,19 @@ myDate::myDate() {
 }
 
 myDate::myDate(int M, int D, int Y) {
-	this->month = M;
-	this->day = D;
-	this->year = Y;
+	int jd = Greg2Julian(M, D, Y);
+	int m1, d1, y1;
+	Julian2Greg(jd, m1, d1, y1);
+	if (M == m1 && D == d1 && Y == y1) {
+		this->month = M;
+		this->day = D;
+		this->year = Y;
+	}
+	else {
+		this->month = 5;
+		this->day = 11;
+		this->year = 1959;
+	}
 }
 
 
@@ -49,70 +60,102 @@ void myDate::display() {
 	cout << months[month - 1] << " " << day << ", " << year;
 }
 
-/*
-void myDate::increaseDate(int n) {
 
+void myDate::increaseDate(int n) {
+	int jd = Greg2Julian(month, day, year);
+	jd += n;
+	Julian2Greg(jd, month, day, year);
 }
 
 void myDate::decreaseDate(int n) {
-
+	int jd = Greg2Julian(month, day, year);
+	jd -= n;
+	Julian2Greg(jd, month, day, year);
 }
 
 int myDate::daysBetween(myDate D) {
-
+	int thisJD = Greg2Julian(month, day, year);
+	int thatJD = Greg2Julian(D.getMonth(), D.getDay(), D.getYear());
+	int difference = thatJD - thisJD;
+	return difference;
 }
 
 int myDate::dayOfYear() {
-	
+	int baseJD = Greg2Julian(1, 1, year);
+	int thisJD = Greg2Julian(month, day, year);
+	int difference = thisJD - baseJD;
+	return difference + 1;
 }
+
 
 string myDate::dayName() {
-
+	int monthTable[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
+	string days[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+	
+	int day = (day + floor(2.6*month - 0.2) - 2 * (year / 100) + (year % 100) + floor((year % 100) / 4) + floor(year / 100)) % 7;
 }
 
-*/
 
 int main()
 {
-	// Testing null constructor and display method
-	myDate myDate;
-	cout << "Testing display with null constructor: ";
-	myDate.display();
-	cout << endl << endl;
-
-	// Testing if pass by reference works and changes value stored at address of...
-	int jdResult = Greg2Julian(1970, 3, 1);
-	cout << "The JD result is " << jdResult << endl;
-	int month = myDate.getMonth();
-	int day = myDate.getDay();
-	int year = myDate.getYear();
-	cout << "Initially the month, day, year = " << month << ", " << day << ", " << year << endl;
-	Julian2Greg(jdResult, month, day, year);
-	cout << "The newly assigned month, day, and year = " << month << ", " << day << ", " << year << endl;
+	
+	// Testing null constructor
+	myDate dNull;
+	dNull.display();
 	cout << endl;
 
-	// Testing to see if date is valid or not. Case 1 not valid. Case 2 valid.
-	// Case 1
-	cout << "Checking for invalid date" << endl;
-	cout << "Value is month = 13, day = 1, year = 1970 " << endl;
-	int monthTest = 13;
-	int dayTest = 1;
-	int yearTest = 1970;
-	int jdTestValidity = Greg2Julian(yearTest, monthTest, dayTest);
-	Julian2Greg(jdTestValidity, monthTest, dayTest, yearTest);
-	cout << monthTest << " " << dayTest << " " << yearTest << endl;
+	// Testing valid Date constructor
+	myDate d1(9, 27, 2018);
+	d1.display();
 	cout << endl;
 
-	// Case 2
-	cout << "Checking for valid date" << endl;
-	cout << "Value is month = 12, day = 25, year = 1970 " << endl;
-	int monthTest2 = 12;
-	int dayTest2 = 25;
-	int yearTest2 = 1970;
-	int jdTestValidity2 = Greg2Julian(yearTest2, monthTest2, dayTest2);
-	Julian2Greg(jdTestValidity2, monthTest2, dayTest2, yearTest2);
-	cout << monthTest2 << " " << dayTest2 << " " << yearTest2 << endl;
+	// Testing invalid date
+	myDate d2(13, 1, 1980);
+	d2.display();
+	cout << endl;
+
+	// Testing increase date
+	myDate d3(9, 26, 2018);
+	d3.display();
+	cout << endl;
+	d3.increaseDate(1); // Testing 1 day increase
+	d3.display();
+	cout << endl;
+	d3.increaseDate(20); // Testing increase to next month
+	d3.display();
+	cout << endl;
+
+	// Testing decrease date
+	myDate d4(12, 26, 2018);
+	d4.display();
+	cout << endl;
+	d4.decreaseDate(1); // Testing single day decrease
+	d4.display();
+	cout << endl;
+	d4.decreaseDate(30); // Testing decrease to previous month
+	d4.display();
+	cout << endl;
+
+	// Testing daysBetween
+	myDate d5(1, 1, 2019);
+	myDate d6(2, 1, 2019);
+	cout << "The days between are: " << d5.daysBetween(d6) << endl; // testing positive difference
+
+	myDate d7(12, 1, 2018);
+	cout << "The days between are: " << d5.daysBetween(d7) << endl; // testing negative difference
+
+	// Testing dayOfYear
+	myDate d8(1, 1, 2018);
+	cout << "The day of year should equal 1: Result = " << d8.dayOfYear() << endl; // testing jan 1
+
+	myDate d9(2, 1, 2018);
+	cout << "The day of year should equal 32: Result = " << d9.dayOfYear() << endl; // testing feb 1
+
+	// Testing dayName
+	myDate d10(9, 26, 2018);
+	cout << d10.dayName() << endl;
 
 	return 0;
 }
+
 
