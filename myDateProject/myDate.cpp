@@ -89,10 +89,10 @@ int myDate::dayOfYear() {
 
 
 string myDate::dayName() {
-	int monthTable[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
+	int monthArray[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
 	string days[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-	
-	int day = (day + floor(2.6*month - 0.2) - 2 * (year / 100) + (year % 100) + floor((year % 100) / 4) + floor(year / 100)) % 7;
+	year -= month < 3;
+	return days[(year + year / 4 - year / 100 + year / 400 + monthArray[month - 1] + day) % 7];
 }
 
 
@@ -153,9 +153,13 @@ int main()
 
 	// Testing dayName
 	myDate d10(9, 26, 2018);
-	cout << d10.dayName() << endl;
+	cout << d10.dayName() << endl; // should return wednesday
+
+	myDate d11(3, 1, 1986);
+	cout << d11.dayName() << endl; // should return saturday
+
+	myDate d12(4, 13, 2000);
+	cout << d12.dayName() << endl; // should return thursday
 
 	return 0;
 }
-
-
