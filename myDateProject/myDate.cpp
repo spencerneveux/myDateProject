@@ -9,8 +9,8 @@
 using namespace std;
 
 int Greg2Julian(int month, int day, int year) {
-	int JD = day - 32075 + 1461 * (year + 4800 + (month - 14) / 12) / 4 + 367 
-		* (month - 2 - (month - 14) / 12 * 12) / 12 - 3 
+	int JD = day - 32075 + 1461 * (year + 4800 + (month - 14) / 12) / 4 + 367
+		* (month - 2 - (month - 14) / 12 * 12) / 12 - 3
 		* ((year + 4900 + (month - 14) / 12) / 100) / 4;
 	return JD;
 }
@@ -89,16 +89,17 @@ int myDate::dayOfYear() {
 
 
 string myDate::dayName() {
-	int monthArray[] = { 0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4 };
 	string days[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-	year -= month < 3;
-	return days[(year + year / 4 - year / 100 + year / 400 + monthArray[month - 1] + day) % 7];
+	int jd = Greg2Julian(month, day, year);
+	int day = jd % 7;
+	string result = days[day + 1];
+	return result;
 }
 
 
 int main()
 {
-	
+
 	// Testing null constructor
 	myDate dNull;
 	dNull.display();
@@ -152,14 +153,17 @@ int main()
 	cout << "The day of year should equal 32: Result = " << d9.dayOfYear() << endl; // testing feb 1
 
 	// Testing dayName
-	myDate d10(9, 26, 2018);
-	cout << d10.dayName() << endl; // should return wednesday
+	myDate d10(9, 28, 2018);
+	cout << d10.dayName() << endl; // should return friday
 
 	myDate d11(3, 1, 1986);
 	cout << d11.dayName() << endl; // should return saturday
 
 	myDate d12(4, 13, 2000);
 	cout << d12.dayName() << endl; // should return thursday
+
+	d12.increaseDate(1);
+	cout << d12.dayName() << endl; // should return friday
 
 	return 0;
 }
